@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -15,16 +17,29 @@ public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> userStorage;
     private static Long id = 0L;
 
-    public User create(User user) {
+    public User createUser(User user) {
         user.setId(++id);
         log.info("Добавление пользователя {} ", user);
         userStorage.put(user.getId(), user);
+        log.info("Пользователь {} добавлен в базу данных", user);
         return user;
     }
+
+    public Optional<User> getUserById(Long id) {
+        log.info("Поиск пользователя с id {}", id);
+        return Optional.ofNullable(userStorage.get(id));
+    }
+
+    public void deleteUserById(Long id) {
+        log.info("Удаление пользователя с id {} ",id);
+        userStorage.remove(id);
+        log.info("Пользователь с id {} удален", id);
+    }
+
     public boolean isEmailRegistered(String email) {
         return userStorage.values().stream()
                 .map(User::getEmail)
-                .anyMatch(k->k.equals(email));
+                .anyMatch(k -> k.equals(email));
     }
 
 }

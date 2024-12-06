@@ -10,11 +10,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Constraint(validatedBy = EmailRepeatValidator.class) // указывает, что аннотация, к которой она применяется, является аннотацией валидации
-@Target({ElementType.FIELD})
+@Constraint(validatedBy = UserIdValidator.class)
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EmailRepeatValid {
-    String message() default "Данный e-mail уже зарегистрирован";
+public @interface UserIdValid {
+    String message() default "Данный id отсутствует в базе данных";
     Class<?>[] groups() default{};
     Class<? extends Payload>[] payload() default {};
 }
