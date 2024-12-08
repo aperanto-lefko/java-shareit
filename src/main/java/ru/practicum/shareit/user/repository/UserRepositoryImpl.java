@@ -13,7 +13,7 @@ import java.util.Optional;
 @Slf4j
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> userStorage;
-    private static Long id = 0L;
+    private Long id = 0L;
 
     public User createUser(User user) {
         user.setId(++id);

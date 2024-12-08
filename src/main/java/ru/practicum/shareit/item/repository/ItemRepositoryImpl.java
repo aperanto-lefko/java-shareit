@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Item> itemStorage;
-    private static Long id = 0L;
+    private Long id = 0L;
 
     public Item createItem(Item item) {
         item.setId(++id);
