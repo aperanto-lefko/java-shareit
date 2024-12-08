@@ -1,11 +1,11 @@
 package ru.practicum.shareit.user.repository;
 
+import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 
 
 @Data
+@Builder
 public class UpdateUserRequest {
 
     private Long id;

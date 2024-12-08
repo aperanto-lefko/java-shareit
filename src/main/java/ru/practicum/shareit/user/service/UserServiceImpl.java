@@ -3,16 +3,12 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.security.URIParameter;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +19,8 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(userRepository.getUserById(id).get());
     }
 
-    public UserDto createUser(User user) {
+    public UserDto createUser(UserDto userDto) {
+        User user = UserMapper.toUser(userDto);
         return UserMapper.toUserDto(userRepository.createUser(user));
     }
 
@@ -39,7 +36,8 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Данный e-mail уже зарегистрирован");
         }
         UserMapper.updateUserFields(user, request);
-        return UserMapper.toUserDto(user);
+        userRepository.updateUser(user);
+        return UserMapper.toUserDto(userRepository.getUserById(user.getId()).get());
     }
 
     public boolean isEmailRegistered(String email) {

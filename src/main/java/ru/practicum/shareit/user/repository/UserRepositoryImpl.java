@@ -1,12 +1,10 @@
 package ru.practicum.shareit.user.repository;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,8 +28,14 @@ public class UserRepositoryImpl implements UserRepository {
         return Optional.ofNullable(userStorage.get(id));
     }
 
+    public void updateUser(User user) {
+        log.info("Обновление пользователя с id {}", user.getId());
+        userStorage.put(user.getId(), user);
+        log.info("Обновленный Пользователь {} добавлен в базу данных", user);
+    }
+
     public void deleteUserById(Long id) {
-        log.info("Удаление пользователя с id {} ",id);
+        log.info("Удаление пользователя с id {} ", id);
         userStorage.remove(id);
         log.info("Пользователь с id {} удален", id);
     }

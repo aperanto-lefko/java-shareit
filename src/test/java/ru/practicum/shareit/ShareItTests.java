@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ShareItTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads() { // Метод, проверяющий, что контекст Spring загружается без ошибок
 	}
 
 }

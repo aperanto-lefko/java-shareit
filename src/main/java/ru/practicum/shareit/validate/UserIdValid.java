@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UserIdValid {
-    String message() default "Данный id отсутствует в базе данных";
-    Class<?>[] groups() default{};
+    String message() default "Данный id user отсутствует в базе данных";
+
+    Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

@@ -3,18 +3,18 @@ package ru.practicum.shareit.validate;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.item.service.ItemService;
 
 @RequiredArgsConstructor
-public class UserIdValidator implements ConstraintValidator<UserIdValid, Long> {
-    private final UserService userService;
+public class ItemIdValidator implements ConstraintValidator<ItemIdValid, Long> {
+    private final ItemService itemService;
 
     @Override
-    public void initialize(UserIdValid constraintAnnotation) {
+    public void initialize(ItemIdValid constraintAnnotation) {
     }
 
     @Override
     public boolean isValid(Long id, ConstraintValidatorContext context) {
-        return id != 0 && userService.isUserRegistered(id);
+        return id != 0 && itemService.isItemRegistered(id);
     }
 }
