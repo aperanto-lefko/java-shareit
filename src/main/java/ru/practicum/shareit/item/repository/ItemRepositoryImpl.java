@@ -45,7 +45,6 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     public List<Item> searchItems(String text) {
         log.info("Поиск вещей по совпадению с \"{}\"", text);
-        System.out.println(itemStorage);
         return itemStorage.values().stream()
                 .filter(k -> (k.getName().matches("(?i).*" + Pattern.quote(text) + ".*") ||
                         k.getDescription().matches("(?i).*" + Pattern.quote(text) + ".*")) &&

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.errorHandler;
+package ru.practicum.shareit.error_handler;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import jakarta.validation.ConstraintViolation;
