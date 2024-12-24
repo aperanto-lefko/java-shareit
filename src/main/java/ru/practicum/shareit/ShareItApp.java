@@ -4,7 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class }) //удалить, когда подключим базу
+@SpringBootApplication
+        //(exclude = {DataSourceAutoConfiguration.class }) //удалить, когда подключим базу
                                                                        //без зависимости jdbc не работают тесты
 public class ShareItApp {
 

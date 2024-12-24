@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.model;
+package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,20 +12,21 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @Entity
-@Table(name = "requests", schema = "public")
-public class ItemRequest {
+@Table(name = "comments", schema = "public")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  //уникальный идентификатор запроса
+    private Long id;
     @Column(nullable = false)
-    private String description; // текст запроса, содержащий описание требуемой вещи
+    private String description;
     @ManyToOne
     @JoinColumn(referencedColumnName = "id", nullable = false)
-    private User requestor; //пользователь, создавший запрос
-    private LocalDateTime created; // дата и время создания запроса
+    private Item item;
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "id", nullable = false)
+    private User author;
+
 }
