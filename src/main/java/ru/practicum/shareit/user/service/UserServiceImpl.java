@@ -18,17 +18,20 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     public UserDto getUser(Long id) {
-        return UserMapper.toUserDto(userRepository.findById(id).get()); } //findById предоставляется JpaRepository
+        return UserMapper.toUserDto(userRepository.findById(id).get());
+    }
 
     @Transactional
     public UserDto createUser(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         return UserMapper.toUserDto(userRepository.save(user));
     }
+
     @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-    } //deleteById предоставляется JpaRepository
+    }
+
     @Transactional
     public UserDto updateUser(UpdateUserRequest request) {
         User user = userRepository.findById(request.getId()).get();

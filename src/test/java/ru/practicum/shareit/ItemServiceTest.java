@@ -4,28 +4,33 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.repository.UpdateItemRequest;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-/*
-@JdbcTest
+
+
+@SpringBootTest
 @ComponentScan(basePackages = "ru.practicum.shareit")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Transactional // Откат транзакции после каждого теста Spring автоматически откатывает транзакцию после каждого теста()
 public class ItemServiceTest {
     private final ItemService itemService;
     private final UserService userService;
-    UserDto u1, createdUserU1;
+
+    UserDto u1;
     ItemDto i1, i2;
-    ItemDto createdItemI1, createdItemI2;
     UpdateItemRequest request;
 
     @BeforeEach
@@ -34,33 +39,34 @@ public class ItemServiceTest {
                 .name("name u1")
                 .email("u1@mail.ru")
                 .build();
-        createdUserU1 = userService.createUser(u1);
+        u1 = userService.createUser(u1);
+        User user = UserMapper.toUser(u1);
         i1 = ItemDto.builder()
                 .name("name i1")
                 .description("description i1")
                 .available(true)
-                .owner(createdUserU1)
+                .owner(user)
                 .build();
         i2 = ItemDto.builder()
                 .name("name i2")
                 .description("description i2")
                 .available(false)
-                .owner(createdUserU1)
+                .owner(user)
                 .build();
         request = UpdateItemRequest.builder()
                 .name("name request")
                 .description("description request")
                 .available(false)
-                .owner(createdUserU1.getId())
+                .owner(u1.getId())
                 .build();
-        createdItemI1 = itemService.createItem(i1);
-        createdItemI2 = itemService.createItem(i2);
+        i1 = itemService.createItem(u1.getId(),i1);
+        i2 = itemService.createItem(u1.getId(),i2);
     }
 
     @Test
     public void testCreateItemInRepository() {
-        assertThat(createdItemI1.getId()).isNotNull();
-        assertThat(createdItemI1)
+        assertThat(i1.getId()).isNotNull();
+        assertThat(i1)
                 .hasFieldOrPropertyWithValue("name", "name i1")
                 .hasFieldOrPropertyWithValue("description", "description i1")
                 .hasFieldOrPropertyWithValue("available", true);
@@ -68,7 +74,7 @@ public class ItemServiceTest {
 
     @Test
     public void testUpdateItem() {
-        request.setId(createdItemI1.getId());
+        request.setId(i1.getId());
         ItemDto updatedItem = itemService.updateItem(request);
         assertThat(updatedItem)
                 .hasFieldOrPropertyWithValue("name", "name request")
@@ -78,7 +84,7 @@ public class ItemServiceTest {
 
     @Test
     public void testGetItemsForUser() {
-        List<ItemDto> list = itemService.getItemsForUser(createdUserU1.getId());
+        List<ItemDto> list = itemService.getItemsForUser(u1.getId());
         assertThat(list)
                 .hasSize(2)
                 .extracting(ItemDto::getName)
@@ -96,7 +102,6 @@ public class ItemServiceTest {
 
     @Test
     public void testIsItemRegistered() {
-        assertTrue(itemService.isItemRegistered(createdItemI1.getId()));
+        assertTrue(itemService.isItemRegistered(i1.getId()));
     }
 }
-*/

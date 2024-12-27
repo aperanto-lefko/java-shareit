@@ -9,8 +9,6 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 
 @Data
@@ -27,5 +25,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;  //адрес электронной почты, проверка на уникальность
 
-    public User() {}
+    public User() {
+    }
 }

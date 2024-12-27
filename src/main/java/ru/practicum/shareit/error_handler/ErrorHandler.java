@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,13 +19,21 @@ import java.util.stream.Collectors;
 @RestControllerAdvice("ru.practicum.shareit")
 @Slf4j
 public class ErrorHandler {
+
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //500
-    public ErrorResponse handleAnnotationsObject(MethodArgumentNotValidException e) { //исключение при срабатывании аннотации на объектах
+    public ResponseEntity<ErrorResponse> handleAnnotationsObject(MethodArgumentNotValidException e) { //исключение при срабатывании аннотации на объектах
+        String fieldName = Objects.requireNonNull(e.getBindingResult().getFieldError()).getField(); //получение поля, которое вызвало ошибку
         String response = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage(); //можно вернуть массивом все ошибки валидации
         log.error("Пользователь указал некорректные данные." + response);
-        return new ErrorResponse("Указаны некорректные данные. " + response);
+        ErrorResponse errorResponse = new ErrorResponse("Указаны некорректные данные. " + response);
+        if ("email".equals(fieldName)) {
+                   return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR); //500
+        } else if ("itemId".equals(fieldName)) {
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND); //404
+        }
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); //400
     }
+
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
@@ -56,4 +65,5 @@ public class ErrorHandler {
         log.error("В JSON не указано обязательно поле");
         return new ErrorResponse("В запросе отсутствует обязательное поле" + e.getMessage());
     }
+
 }

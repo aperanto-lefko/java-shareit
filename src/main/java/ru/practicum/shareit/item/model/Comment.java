@@ -8,25 +8,33 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @Entity
 @Table(name = "comments", schema = "public")
+@AllArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private String description;
+    @Column(name = "text", nullable = false)
+    private String text;
     @ManyToOne
-    @JoinColumn(referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "item", referencedColumnName = "id", nullable = false)
     private Item item;
     @ManyToOne
-    @JoinColumn(referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "author", referencedColumnName = "id", nullable = false)
     private User author;
+    @Column(name = "created", nullable = false)
+    private LocalDateTime created;
 
+    public Comment() {
+    }
 }

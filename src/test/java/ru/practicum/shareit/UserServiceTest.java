@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
@@ -18,9 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@JdbcTest
+@SpringBootTest
 @ComponentScan(basePackages = "ru.practicum.shareit")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Transactional
 public class UserServiceTest {
     private final UserService userService;
     UserDto u1, u2, createdUserU1, createdUserU2;

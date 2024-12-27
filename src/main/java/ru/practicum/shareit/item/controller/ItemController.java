@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.repository.UpdateItemRequest;
+import ru.practicum.shareit.item.service.CommentService;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validate.ItemIdValid;
 import ru.practicum.shareit.validate.UserIdValid;
@@ -26,6 +28,7 @@ import java.util.List;
 @Validated
 public class ItemController {
     private final ItemService itemService;
+    private final CommentService commentService;
 
     @GetMapping("/{id}")
     public ItemDto getItem(@ItemIdValid @PathVariable Long id) {
@@ -43,10 +46,10 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto add(@UserIdValid @RequestHeader("X-Sharer-User-Id") Long userId,
-                       @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto addItem(@UserIdValid @RequestHeader("X-Sharer-User-Id") Long userId,
+                           @Valid @RequestBody ItemDto itemDto) {
 
-        return itemService.createItem(userId,itemDto);
+        return itemService.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
@@ -55,6 +58,14 @@ public class ItemController {
         request.setId(id);
         request.setOwner(userId);
         return itemService.updateItem(request);
+    }
+
+    @PostMapping("/{id}/comment")
+    public CommentDto addComment(@UserIdValid @RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @Valid @RequestBody CommentDto commentDto,
+                                 @ItemIdValid @PathVariable Long id) {
+
+        return commentService.createComment(userId, commentDto, id);
     }
 
 }
