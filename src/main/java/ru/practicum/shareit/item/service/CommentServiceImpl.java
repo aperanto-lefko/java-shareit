@@ -27,8 +27,8 @@ import java.util.List;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
-    private final UserService userService;
     private final BookingRepository bookingRepository;
+    private final UserService userService;
 
     @Transactional
     public CommentDto createComment(Long userId, CommentDto commentDto, Long itemId) {
