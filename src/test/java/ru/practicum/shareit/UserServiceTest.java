@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-import ru.practicum.shareit.exception.BadRequestException;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.InvalidEmailException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
 import ru.practicum.shareit.user.service.UserService;
@@ -18,9 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@JdbcTest
+@SpringBootTest
 @ComponentScan(basePackages = "ru.practicum.shareit")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Transactional
 public class UserServiceTest {
     private final UserService userService;
     UserDto u1, u2, createdUserU1, createdUserU2;
@@ -69,7 +71,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUserWithRepeatEmail() {
         requestWithRepeatEmail.setId(createdUserU1.getId());
-        Exception e = assertThrows(BadRequestException.class, () ->
+        Exception e = assertThrows(InvalidEmailException.class, () ->
                         userService.updateUser(requestWithRepeatEmail),
                 "Метод работает некорректно");
         assertTrue(e.getMessage().contains("Данный e-mail уже зарегистрирован"));
