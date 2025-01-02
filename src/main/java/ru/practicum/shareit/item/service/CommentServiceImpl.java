@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.InvalidItemIdException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -14,9 +15,10 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,27 +27,31 @@ import java.time.LocalDateTime;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final BookingRepository bookingRepository;
 
     @Transactional
     public CommentDto createComment(Long userId, CommentDto commentDto, Long itemId) {
         log.info("Поиск пользователя с id {} который хочет добавить комментарий", userId);
-        User author = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("Пользователь с id " + userId + " не найден"));
+        User author = userService.getUserById(userId);
         log.info("Поиск вещи с id {} для которой добавляется комментарий", itemId);
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new BadRequestException("Вещь с id " + itemId + "не найдена"));
+                .orElseThrow(() -> new InvalidItemIdException("Вещь с id " + itemId + " не найдена"));
         Booking booking = bookingRepository.findByBookerIdAndItemId(userId, itemId)
                 .orElseThrow(() ->
-                        new BadRequestException("Пользователь " + author.getName() + " id "  + author.getId() + " не брал вещь " + item.getName() + " id " + item.getId() + " в аренду"));
+                        new BadRequestException("Пользователь " + author.getName() + " id " + author.getId() + " не брал вещь " + item.getName() + " id " + item.getId() + " в аренду"));
 
         if (booking.getEnd().isAfter(LocalDateTime.now())) { //нельзя комментировать текущее бронирование
-             throw new BadRequestException("Пользователь " + author.getName() + " комментирует вещь " + item.getName() +
-                     " при текущем бронировании");
-         }
+            throw new BadRequestException("Пользователь " + author.getName() + " комментирует вещь " + item.getName() +
+                    " при текущем бронировании");
+        }
         Comment comment = CommentMapper.toComment(commentDto, item, author);
         log.info("Сохранение комментария {} в базу данных", comment);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
+    }
+
+    public List<Comment> commentsForItem(Long id) {
+        log.info("Поиск комментариев для вещи с id {}", id);
+        return commentRepository.findAllByItemId(id);
     }
 }

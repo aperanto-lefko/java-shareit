@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.stateStrategy.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.validate.UserIdValid;
 
@@ -35,7 +36,7 @@ public class BookingController {
     @PatchMapping("/{bookingId}") //Подтверждение или отклонение запроса на бронирование
     public BookingDto addApprove(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable Long bookingId,
-                                 @RequestParam(name = "approved") String approved) {
+                                 @RequestParam(name = "approved") boolean approved) {
         return bookingService.createApprove(userId, bookingId, approved);
     }
 
@@ -52,7 +53,7 @@ public class BookingController {
 
     @GetMapping //GET /bookings?state={state} //поиск бронирования со статусом
     public List<BookingDto> searchBookingForUserWithState(@UserIdValid @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                          @RequestParam(name = "state", defaultValue = "ALL") String state) {
+                                                          @RequestParam(name = "state", defaultValue = "ALL") Status state) {
         return bookingService.searchBookingsWithState(userId, state);
     }
 

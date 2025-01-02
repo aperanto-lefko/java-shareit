@@ -12,12 +12,19 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = "id")
+
 @Builder
 @Entity
 @Table(name = "items", schema = "public")

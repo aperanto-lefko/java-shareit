@@ -10,12 +10,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
+
 
 import java.time.LocalDateTime;
 
-@Data
+
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = "id") // Используем id для equals и hashCode
+
 @Builder
 @Entity
 @Table(name = "comments", schema = "public")

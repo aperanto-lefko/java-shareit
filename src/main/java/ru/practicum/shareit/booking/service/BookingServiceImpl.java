@@ -7,13 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.stateStrategy.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.booking.stateStrategy.Strategy;
+import ru.practicum.shareit.booking.stateStrategy.StrategyFactory;
+import ru.practicum.shareit.exception.InvalidBookingIdException;
+import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.InvalidParameterForBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,51 +28,46 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
+    private final UserService userservice;
     private final ItemRepository itemRepository;
+    private final StrategyFactory strategyFactory;
 
     @Transactional
     public BookingDto createBooking(Long userId, BookingDto bookingDto) {
         if (bookingDto.getStart().equals(bookingDto.getEnd())) {
-            throw new BadRequestException("Дата начала и конца бронирования не может совпадать");
+            throw new InvalidParameterForBooking("Дата начала и конца бронирования не может совпадать");
         }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("Пользователь с id " + userId + " не найден"));
+        User user = userservice.getUserById(userId);
+
         Item item = itemRepository.findById(bookingDto.getItemId())
-                .orElseThrow(() -> new BadRequestException("Вещь с id " + bookingDto.getItemId() + "не найдена"));
+                .orElseThrow(() -> new InvalidItemIdException("Вещь с id " + bookingDto.getItemId() + " не найдена"));
         if (!item.getAvailable()) {
-            throw new BadRequestException("Вещь не доступна для бронирования");
+            throw new InvalidParameterForBooking("Вещь не доступна для бронирования");
         }
         Booking booking = BookingMapper.toBooking(bookingDto, user, item);
         BookingDto savedBookingDto = BookingMapper.toBookingDto(bookingRepository.save(booking));
-        log.info("Бронирование {booking} сохранено в базу данных");
+        log.info("Бронирование {} сохранено в базу данных", booking);
         return savedBookingDto;
     }
 
     @Transactional
-    public BookingDto createApprove(Long userId, Long bookingId, String approved) {
+    public BookingDto createApprove(Long userId, Long bookingId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BadRequestException("Вещь с id " + bookingId + " не найдена"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("Пользователь с id " + userId + " не найден"));
+                .orElseThrow(() -> new InvalidBookingIdException("Вещь с id " + bookingId + " не найдена"));
+
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new BadRequestException("Статус может менять только хозяин вещи. Пользователь с id " +
+            throw new InvalidParameterForBooking("Статус может менять только хозяин вещи. Пользователь с id " +
                     userId + " не является хозяином вещи с id " + booking.getItem().getId());
         }
+        User user = userservice.getUserById(userId);
+        if (approved) {
+            booking.setStatus(Status.APPROVED);
+        } else {
+            booking.setStatus(Status.REJECTED);
+        }
+        log.info("Сохранение " + booking + " в базу данных");
+        return  BookingMapper.toBookingDto(bookingRepository.save(booking));
 
-        return switch (approved) {
-            case "true" -> {
-                booking.setStatus(Status.APPROVED);
-                log.info("Сохранение " + booking + " в базу данных");
-                yield BookingMapper.toBookingDto(bookingRepository.save(booking));
-            }
-            case "false" -> {
-                booking.setStatus(Status.REJECTED);
-                log.info("Сохранение " + booking + " в базу данных");
-                yield BookingMapper.toBookingDto(bookingRepository.save(booking));
-            }
-            default -> throw new BadRequestException("Некорректный параметр запроса " + approved);
-        };
     }
 
     public List<BookingDto> searchBookingsForOwner(Long ownerId) {
@@ -76,44 +75,26 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public BookingDto searchBooking(Long userId, Long bookingId) {
-        return BookingMapper.toBookingDto(bookingRepository.findByIdAndBookerIdOrItemOwnerId(bookingId, userId, userId)
+        return BookingMapper.toBookingDto(bookingRepository.findByIdAndUserId(bookingId, userId)
                 .orElseThrow(() ->
-                        new BadRequestException("Бронирование для пользователя с id " + userId + " не найдено")));
+                        new InvalidBookingIdException("Бронирование для пользователя с id " + userId + " не найдено")));
     }
 
-    public List<BookingDto> searchBookingsWithState(Long userId, String state) {
-        log.info("Поиск бронирований с параметром " + state);
-        return switch (state) {
-            case "ALL" -> toListBookingDto(bookingRepository.findByBookerIdOrItemOwnerId(userId, userId));
-            case "CURRENT" -> toListBookingDto(//текущие
-                    bookingRepository.findByBookerIdOrItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                            userId,
-                            userId,
-                            LocalDateTime.now(),
-                            LocalDateTime.now()));
-            case "PAST" -> toListBookingDto(//прошедшие
-                    bookingRepository.findByBookerIdOrItemOwnerIdAndEndBeforeOrderByStartDesc(
-                            userId,
-                            userId,
-                            LocalDateTime.now()));
-            case "FUTURE" -> toListBookingDto(//будущие
-                    bookingRepository.findByBookerIdOrItemOwnerIdAndStartAfterOrderByStartDesc(
-                            userId,
-                            userId,
-                            LocalDateTime.now()));
-            case "WAITING" -> toListBookingDto(//ожидающие подтверждения
-                    bookingRepository.findByBookerIdOrItemOwnerIdAndStatusOrderByStartDesc(
-                            userId,
-                            userId,
-                            Status.WAITING));
-            case "REJECTED" -> toListBookingDto(//отклоненные
-                    bookingRepository.findByBookerIdOrItemOwnerIdAndStatusOrderByStartDesc(
-                            userId,
-                            userId,
-                            Status.REJECTED));
-            default -> throw new BadRequestException("Некорректный параметр запроса " + state);
-        };
+    public List<BookingDto> searchBookingsWithState(Long userId, Status state) {
+        Strategy strategy = strategyFactory.findStrategy(state);
+        return toListBookingDto(strategy.searchBookings(userId));
     }
+
+    public Booking lastBookingForItem(Long id) { //текущее бронирование
+        return bookingRepository.findByItemIdCurrentBook(id, LocalDateTime.now())
+                .orElse(null);
+    }
+
+    public Booking nextBookingForItem(Long id) { //следующее бронирование
+        return bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(id, LocalDateTime.now())
+                .orElse(null);
+    }
+
 
     private List<BookingDto> toListBookingDto(List<Booking> list) {
         return list.stream()

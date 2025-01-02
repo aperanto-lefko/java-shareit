@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.InvalidEmailException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
 import ru.practicum.shareit.user.service.UserService;
@@ -71,7 +71,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUserWithRepeatEmail() {
         requestWithRepeatEmail.setId(createdUserU1.getId());
-        Exception e = assertThrows(BadRequestException.class, () ->
+        Exception e = assertThrows(InvalidEmailException.class, () ->
                         userService.updateUser(requestWithRepeatEmail),
                 "Метод работает некорректно");
         assertTrue(e.getMessage().contains("Данный e-mail уже зарегистрирован"));

@@ -5,35 +5,22 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.InvalidBookingIdException;
+import ru.practicum.shareit.exception.InvalidEmailException;
+import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.InvalidParameterForBooking;
+import ru.practicum.shareit.exception.InvalidUserIdException;
 
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice("ru.practicum.shareit")
 @Slf4j
 public class ErrorHandler {
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleAnnotationsObject(MethodArgumentNotValidException e) { //исключение при срабатывании аннотации на объектах
-        String fieldName = Objects.requireNonNull(e.getBindingResult().getFieldError()).getField(); //получение поля, которое вызвало ошибку
-        String response = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage(); //можно вернуть массивом все ошибки валидации
-        log.error("Пользователь указал некорректные данные." + response);
-        ErrorResponse errorResponse = new ErrorResponse("Указаны некорректные данные. " + response);
-        if ("email".equals(fieldName)) {
-                   return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR); //500
-        } else if ("itemId".equals(fieldName)) {
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND); //404
-        }
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); //400
-    }
-
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
@@ -66,4 +53,38 @@ public class ErrorHandler {
         return new ErrorResponse("В запросе отсутствует обязательное поле" + e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse invalidUserId(InvalidUserIdException e) { //исключение для некорректного номер id user
+        log.error("Неверно указан userId");
+        return new ErrorResponse("В запросе неверно указан userId " + e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //500
+    public ErrorResponse invalidEmail(InvalidEmailException e) { //исключение для некорректного email
+        log.error("Неверно указан email");
+        return new ErrorResponse("В запросе неверно указан email. " + e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse invalidItemId(InvalidItemIdException e) { //исключение для некорректного номер id item
+        log.error("Неверно указан itemId");
+        return new ErrorResponse("В запросе неверно указан itemId" + e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse invalidBookingId(InvalidBookingIdException e) { //исключение для некорректного номер id booking
+        log.error("Неверно указан bookingId");
+        return new ErrorResponse("В запросе неверно указан bookingId" + e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //500
+    public ErrorResponse invalidBookingParameter(InvalidParameterForBooking e) { //исключение для некорректного параметра бронирования
+        log.error("Неверно указан параметр booking " + e.getMessage());
+        return new ErrorResponse("В запросе неверно указан параметр " + e.getMessage());
+    }
 }
