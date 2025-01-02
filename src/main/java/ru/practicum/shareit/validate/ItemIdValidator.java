@@ -16,7 +16,7 @@ public class ItemIdValidator implements ConstraintValidator<ItemIdValid, Long> {
 
     @Override
     public boolean isValid(Long id, ConstraintValidatorContext context) {
-        if (id == 0 | !itemService.isItemRegistered(id)) {
+        if (id == 0 || !itemService.isItemRegistered(id)) {
             throw new InvalidItemIdException("Вещь с itemId " + id + " не найдена в базе");
         }
         return true;
