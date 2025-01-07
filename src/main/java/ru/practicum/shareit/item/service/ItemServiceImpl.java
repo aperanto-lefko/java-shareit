@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,14 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.repository.UpdateItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,8 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final CommentService commentService;
     private final BookingService bookingService;
+    private final RequestRepository requestRepository;
+
 
     public ItemDto getItem(Long id) {
         return ItemMapper.toItemDto(getItemById(id),
@@ -45,10 +51,14 @@ public class ItemServiceImpl implements ItemService {
         return toListItemDto(itemRepository.findByOwnerId(userId));
     }
 
+
     @Transactional
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         User user = userService.getUserById(userId);
-        Item item = ItemMapper.toItem(itemDto, user);
+        ItemRequest request = Optional.ofNullable(itemDto.getRequestId()) //проверка если передан id запроса
+                .flatMap(requestRepository::findById)
+                .orElse(null);
+        Item item = ItemMapper.toItem(itemDto, user, request);
         return ItemMapper.toItemDto(itemRepository.save(item),
                 lastBookingForItem(item.getId()),
                 nextBookingForItem(item.getId()),
@@ -71,6 +81,10 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
         return toListItemDto(itemRepository.findByNameContaining(text));
+    }
+
+    public List<ItemDto> searchItemByRequest(Long id) {
+        return toListItemDto(itemRepository.findByRequestId(id));
     }
 
     public boolean isItemRegistered(Long id) {

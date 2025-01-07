@@ -14,6 +14,7 @@ import ru.practicum.shareit.exception.InvalidBookingIdException;
 import ru.practicum.shareit.exception.InvalidEmailException;
 import ru.practicum.shareit.exception.InvalidItemIdException;
 import ru.practicum.shareit.exception.InvalidParameterForBooking;
+import ru.practicum.shareit.exception.InvalidRequestIdException;
 import ru.practicum.shareit.exception.InvalidUserIdException;
 
 import java.util.stream.Collectors;
@@ -79,6 +80,12 @@ public class ErrorHandler {
     public ErrorResponse invalidBookingId(InvalidBookingIdException e) { //исключение для некорректного номер id booking
         log.error("Неверно указан bookingId");
         return new ErrorResponse("В запросе неверно указан bookingId" + e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse invalidRequestId(InvalidRequestIdException e) { //исключение для некорректного номер id запроса
+        log.error("Неверно указан requestId");
+        return new ErrorResponse("В запросе неверно указан requestId" + e.getMessage());
     }
 
     @ExceptionHandler

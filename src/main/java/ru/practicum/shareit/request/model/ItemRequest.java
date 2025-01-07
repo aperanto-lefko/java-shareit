@@ -8,16 +8,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = "id")
+
 @Builder
 @Entity
 @Table(name = "requests", schema = "public")
+@AllArgsConstructor
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +35,8 @@ public class ItemRequest {
     @Column(nullable = false)
     private String description; // текст запроса, содержащий описание требуемой вещи
     @ManyToOne
-    @JoinColumn(referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "requestor", referencedColumnName = "id", nullable = false)
     private User requestor; //пользователь, создавший запрос
     private LocalDateTime created; // дата и время создания запроса
+    public ItemRequest(){}
 }
