@@ -19,10 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class RequestServiceImpl implements RequestService{ //добавить интерфейс
+public class RequestServiceImpl implements RequestService { //добавить интерфейс
     private final RequestRepository requestRepository;
     private final UserService userService;
     private final ItemService itemService;
+
     @Transactional
     public ItemRequestDto createRequest(ItemRequestDto itemRequestDto, Long userId) {
         User user = userService.getUserById(userId);
@@ -41,6 +42,7 @@ public class RequestServiceImpl implements RequestService{ //добавить и
                 .toList();
 
     }
+
     public List<ItemRequestDto> getAllRequests() {
         return toListRequestDto(requestRepository.findAll()).stream()
                 .peek(this::setItems) //добавление подходящих по запросу вещей
@@ -52,6 +54,7 @@ public class RequestServiceImpl implements RequestService{ //добавить и
         request.setItems(itemService.searchItemByRequest(request.getId()));
         return request;
     }
+
     public ItemRequestDto getRequest(Long requestId) {
         return setItems(RequestMapper.toRequestDto(getRequestById(requestId)));
     }

@@ -3,8 +3,6 @@ package ru.practicum.shareit.client;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import ru.practicum.shareit.error_handler.ErrorResponse;
+
 
 @Slf4j
 public class BaseClient {
@@ -32,7 +30,7 @@ public class BaseClient {
     }
     //Выполняет GET-запрос с указанием ID пользователя.
 
-    protected ResponseEntity<Object> get(String path, long userId) {
+    protected ResponseEntity<Object> get(String path, Long userId) {
         return get(path, userId, null);
     }
 
@@ -47,7 +45,7 @@ public class BaseClient {
     }
 
     //Выполняет POST-запрос с ID пользователя и телом
-    protected <T> ResponseEntity<Object> post(String path, long userId, T body) {
+    protected <T> ResponseEntity<Object> post(String path, Long userId, T body) {
         return post(path, userId, null, body);
     }
 
@@ -57,12 +55,12 @@ public class BaseClient {
     }
 
     //Выполняет PUT-запрос с ID пользователя и телом
-    protected <T> ResponseEntity<Object> put(String path, long userId, T body) {
+    protected <T> ResponseEntity<Object> put(String path, Long userId, T body) {
         return put(path, userId, null, body);
     }
 
     //Выполняет PUT-запрос с ID пользователя и телом.
-    protected <T> ResponseEntity<Object> put(String path, long userId, @Nullable Map<String, Object> parameters, T body) {
+    protected <T> ResponseEntity<Object> put(String path, Long userId, @Nullable Map<String, Object> parameters, T body) {
         return makeAndSendRequest(HttpMethod.PUT, path, userId, parameters, body);
     }
 
@@ -70,11 +68,11 @@ public class BaseClient {
         return patch(path, null, null, body);
     }
 
-    protected <T> ResponseEntity<Object> patch(String path, long userId) {
+    protected <T> ResponseEntity<Object> patch(String path, Long userId) {
         return patch(path, userId, null, null);
     }
 
-    protected <T> ResponseEntity<Object> patch(String path, long userId, T body) {
+    protected <T> ResponseEntity<Object> patch(String path, Long userId, T body) {
         return patch(path, userId, null, body);
     }
 
@@ -88,7 +86,7 @@ public class BaseClient {
     }
 
     // Выполняет DELETE-запрос с ID пользователя
-    protected ResponseEntity<Object> delete(String path, long userId) {
+    protected ResponseEntity<Object> delete(String path, Long userId) {
         return delete(path, userId, null);
     }
 

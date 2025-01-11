@@ -11,12 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.UpdateItemRequest;
 import ru.practicum.shareit.item.service.CommentService;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.repository.RequestRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -171,6 +169,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.available", is(updatedItem.getAvailable())))
                 .andExpect(jsonPath("$.description", is(updatedItem.getDescription())));
     }
+
     @Test
     void addComment() throws Exception {
         when(commentService.createComment(anyLong(), any(CommentDto.class), anyLong()))

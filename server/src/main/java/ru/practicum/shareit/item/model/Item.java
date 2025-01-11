@@ -46,5 +46,6 @@ public class Item { //вещь
     @JoinColumn(name = "request", referencedColumnName = "id")
     private ItemRequest request; // если вещь была создана по запросу другого пользователя, то в этом поле будет храниться ссылка на соответствующий запрос
 
-    public Item() {}
+    public Item() {
+    }
 }

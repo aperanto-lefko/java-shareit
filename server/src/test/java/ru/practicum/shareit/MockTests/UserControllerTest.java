@@ -30,7 +30,7 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-   private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     @Autowired
     private MockMvc mvc;
 
@@ -39,21 +39,21 @@ public class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-       userDto = UserDto.builder()
+        userDto = UserDto.builder()
                 .id(1L)
                 .name("name u1")
                 .email("u1@mail.ru")
                 .build();
-       updatedRequest = UpdateUserRequest.builder()
-               .id(1L)
-               .name("name updated")
-               .email("updated@mail.ru")
-               .build();
-       updatedUser = UserDto.builder()
-               .id(1L)
-               .name("name updated")
-               .email("updated@mail.ru")
-               .build();
+        updatedRequest = UpdateUserRequest.builder()
+                .id(1L)
+                .name("name updated")
+                .email("updated@mail.ru")
+                .build();
+        updatedUser = UserDto.builder()
+                .id(1L)
+                .name("name updated")
+                .email("updated@mail.ru")
+                .build();
     }
 
     @Test
@@ -71,13 +71,14 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name", is(userDto.getName())))
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
+
     @Test
     void getUser() throws Exception {
         when(userService.getUser(anyLong()))
                 .thenReturn(userDto);
         mvc.perform(get("/users/{id}", userDto.getId())
-                .characterEncoding(StandardCharsets.UTF_8)
-                .accept(MediaType.APPLICATION_JSON))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName())))

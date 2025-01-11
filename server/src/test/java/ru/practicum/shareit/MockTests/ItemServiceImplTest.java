@@ -9,22 +9,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.InvalidItemIdException;
-import ru.practicum.shareit.exception.InvalidUserIdException;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.repository.UpdateItemRequest;
 import ru.practicum.shareit.item.service.CommentService;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +47,7 @@ public class ItemServiceImplTest {
     private ItemServiceImpl itemService;
     private User user;
 
-    private ItemDto itemDto,expectedItemDto;
+    private ItemDto itemDto, expectedItemDto;
     private Item item, updatedItem;
     private UpdateItemRequest request;
     private Comment commentOne, commentTwo;
