@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.InvalidUserIdException;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -217,12 +219,13 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
+
     @Test
-    void addCommentItemNotFound() throws Exception {
+    void addCommentItemNotFoundWithThrow() throws Exception {
         when(userService.isUserRegistered(anyLong()))
                 .thenReturn(true);
         when(itemService.isItemRegistered(anyLong()))
-                .thenReturn(false);
+                .thenThrow(new InvalidItemIdException("Некорректный id вещи"));
 
         mvc.perform(post("/items/{id}/comment", 999)
                         .header("X-Sharer-User-Id", "1")
@@ -231,7 +234,23 @@ public class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("В запросе неверно указан itemIdВещь с itemId 999 не найдена в базе")));
+                .andExpect(jsonPath("$.error", is("В запросе неверно указан itemIdНекорректный id вещи")));
     }
 
+    @Test
+    void addCommentUserNotFoundWithThrow() throws Exception {
+        when(userService.isUserRegistered(anyLong()))
+                .thenThrow(new InvalidUserIdException("Некорректный id пользователя"));
+        when(itemService.isItemRegistered(anyLong()))
+                .thenReturn(true);
+
+        mvc.perform(post("/items/{id}/comment", 999)
+                        .header("X-Sharer-User-Id", "1")
+                        .content(mapper.writeValueAsString(commentDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("В запросе неверно указан userId Некорректный id пользователя")));
+    }
 }
