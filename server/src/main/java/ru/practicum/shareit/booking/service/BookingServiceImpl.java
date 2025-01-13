@@ -54,7 +54,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto createApprove(Long userId, Long bookingId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new InvalidBookingIdException("Вещь с id " + bookingId + " не найдена"));
-
         if (!booking.getItem().getOwner().getId().equals(userId)) {
             throw new InvalidParameterForBooking("Статус может менять только хозяин вещи. Пользователь с id " +
                     userId + " не является хозяином вещи с id " + booking.getItem().getId());
@@ -66,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(Status.REJECTED);
         }
         log.info("Сохранение " + booking + " в базу данных");
-        return  BookingMapper.toBookingDto(bookingRepository.save(booking));
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
 
     }
 

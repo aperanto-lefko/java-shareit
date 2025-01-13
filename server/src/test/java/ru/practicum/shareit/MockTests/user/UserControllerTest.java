@@ -1,4 +1,4 @@
-package ru.practicum.shareit.MockTests;
+package ru.practicum.shareit.MockTests.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.InvalidUserIdException;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
@@ -18,7 +19,9 @@ import java.nio.charset.StandardCharsets;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -88,7 +91,7 @@ public class UserControllerTest {
     @Test
     void updateUser() throws Exception {
         when(userService.isUserRegistered(anyLong()))
-                .thenReturn(true); //проверка существования пользователя
+                .thenReturn(true);
         when(userService.updateUser(any()))
                 .thenReturn(updatedUser);
         mvc.perform(patch("/users/{id}", userDto.getId())
@@ -100,5 +103,24 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(updatedUser.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(updatedUser.getName())))
                 .andExpect(jsonPath("$.email", is(updatedUser.getEmail())));
+    }
+
+    @Test
+    void deleteUser() throws Exception {
+        when(userService.isUserRegistered(anyLong()))
+                .thenReturn(true);
+        mvc.perform(delete("/users/{id}", userDto.getId())
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteUserNotFound() throws Exception {
+        doThrow(new InvalidUserIdException("Пользователь не найден")).when(userService).deleteUser(anyLong());
+
+        mvc.perform(delete("/users/{id}", 999)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("В запросе неверно указан userId Пользователь с userId= 999не найден")));
     }
 }

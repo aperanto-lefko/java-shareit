@@ -1,4 +1,4 @@
-package ru.practicum.shareit.MockTests;
+package ru.practicum.shareit.MockTests.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -11,8 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.booking.stateStrategy.Status;
+import ru.practicum.shareit.exception.InvalidBookingIdException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
@@ -28,9 +31,11 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -53,6 +58,7 @@ public class BookingControllerTest {
     @Autowired
     private MockMvc mvc;
     private BookingDto bookingDto1, bookingDto2;
+    private Booking booking;
     private Item item1, item2;
     private User user, booker;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -86,19 +92,27 @@ public class BookingControllerTest {
                 .build();
         bookingDto1 = BookingDto.builder()
                 .id(1L)
-                .start(LocalDateTime.of(2025, 01, 10, 12, 00, 00))
-                .end(LocalDateTime.of(2025, 01, 15, 12, 00, 00))
+                .start(LocalDateTime.of(2025, 11, 10, 12, 00, 00))
+                .end(LocalDateTime.of(2025, 11, 15, 12, 00, 00))
                 .itemId(1L)
                 .booker(booker)
                 .item(item1)
                 .build();
         bookingDto2 = BookingDto.builder()
                 .id(2L)
-                .start(LocalDateTime.of(2025, 02, 12, 12, 00, 00))
-                .end(LocalDateTime.of(2025, 02, 17, 12, 00, 00))
+                .start(LocalDateTime.of(2025, 12, 12, 12, 00, 00))
+                .end(LocalDateTime.of(2025, 12, 17, 12, 00, 00))
                 .itemId(2L)
                 .booker(booker)
                 .item(item2)
+                .build();
+        booking = Booking.builder()
+                .id(1L)
+                .start(LocalDateTime.of(2025, 12, 12, 12, 00, 00))
+                .end(LocalDateTime.of(2025, 12, 17, 12, 00, 00))
+                .booker(booker)
+                .item(item1)
+                .status(Status.WAITING)
                 .build();
     }
 
@@ -174,4 +188,57 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.item.name", is(bookingDto1.getItem().getName())))
                 .andExpect(jsonPath("$.item.description", is(bookingDto1.getItem().getDescription())));
     }
+
+    @Test
+    void getInvalidBooking() throws Exception {
+        when(bookingRepository.findById(anyLong())).thenThrow(InvalidBookingIdException.class);
+        mvc.perform(get("/bookings/{bookingId}", bookingDto1.getId())
+                        .header("X-Sharer-User-Id", "1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    void addApprove() throws Exception {
+        when(bookingService.createApprove(anyLong(), anyLong(), anyBoolean()))
+                .thenReturn(bookingDto1);
+        when(userService.isUserRegistered(anyLong()))
+                .thenReturn(true);
+
+        mvc.perform(patch("/bookings/{bookingId}", bookingDto1.getId())
+                        .header("X-Sharer-User-Id", "1")
+                        .param("approved", "true")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(bookingDto1.getId()), Long.class))
+                .andExpect(jsonPath("$.start", is(bookingDto1.getStart().format(formatter))))
+                .andExpect(jsonPath("$.end", is(bookingDto1.getEnd().format(formatter))))
+                .andExpect(jsonPath("$.booker.id", is(bookingDto1.getBooker().getId().intValue())))
+                .andExpect(jsonPath("$.booker.name", is(bookingDto1.getBooker().getName())))
+                .andExpect(jsonPath("$.item.name", is(bookingDto1.getItem().getName())))
+                .andExpect(jsonPath("$.item.description", is(bookingDto1.getItem().getDescription())));
+    }
+
+    @Test
+    void searchBookingForUserWithState() throws Exception {
+        when(bookingService.searchBookingsWithState(anyLong(), any(Status.class)))
+                .thenReturn(Arrays.asList(bookingDto1, bookingDto2));
+        when(userService.isUserRegistered(anyLong()))
+                .thenReturn(true);
+
+        mvc.perform(get("/bookings?state=ALL")
+                        .header("X-Sharer-User-Id", "1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2))) // Проверка размера списка
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[1].id", is(2)));
+    }
+
+
 }

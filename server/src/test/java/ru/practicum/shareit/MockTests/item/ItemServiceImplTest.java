@@ -1,4 +1,4 @@
-package ru.practicum.shareit.MockTests;
+package ru.practicum.shareit.MockTests.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -154,5 +154,68 @@ public class ItemServiceImplTest {
         assertThrows(InvalidItemIdException.class, () -> itemService.updateItem(request));
         verify(itemRepository).findById(request.getId());
         verify(itemRepository, never()).save(any(Item.class));
+    }
+
+    @Test
+    void getItem() {
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+        when(bookingService.lastBookingForItem(item.getId())).thenReturn(null);
+        when(bookingService.nextBookingForItem(item.getId())).thenReturn(null);
+        when(commentService.commentsForItem(item.getId())).thenReturn(List.of(commentOne, commentTwo));
+
+        ItemDto actualItemDto = itemService.getItem(item.getId());
+
+        assertEquals(expectedItemDto, actualItemDto);
+        verify(itemRepository).findById(item.getId());
+    }
+
+    @Test
+    void getItemByIdWhenItemExists() {
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+        Item actualItem = itemService.getItemById(item.getId());
+        assertEquals(item, actualItem);
+    }
+
+    @Test
+    void getItemsForUser() {
+        when(itemRepository.findByOwnerId(user.getId())).thenReturn(List.of(item));
+        when(commentService.commentsForItem(anyLong()))
+                .thenReturn(List.of(commentOne, commentTwo));
+        List<ItemDto> actualItems = itemService.getItemsForUser(user.getId());
+        assertEquals(1, actualItems.size());
+        assertEquals(expectedItemDto, actualItems.get(0));
+    }
+
+    @Test
+    void searchItemsWhenTextIsEmpty() {
+        List<ItemDto> actualItems = itemService.searchItems("");
+        assertEquals(0, actualItems.size());
+    }
+
+    @Test
+    void searchItemsWhenTextIsNotEmpty() {
+        when(itemRepository.findByNameContaining("item")).thenReturn(List.of(item));
+        when(commentService.commentsForItem(anyLong()))
+                .thenReturn(List.of(commentOne, commentTwo));
+        List<ItemDto> actualItems = itemService.searchItems("item");
+        assertEquals(1, actualItems.size());
+        assertEquals(expectedItemDto, actualItems.get(0));
+    }
+
+    @Test
+    void searchItemByRequest() {
+        when(itemRepository.findByRequestId(anyLong())).thenReturn(List.of(item));
+        when(commentService.commentsForItem(anyLong()))
+                .thenReturn(List.of(commentOne, commentTwo));
+        List<ItemDto> actualItems = itemService.searchItemByRequest(1L);
+        assertEquals(1, actualItems.size());
+        assertEquals(expectedItemDto, actualItems.get(0));
+    }
+
+    @Test
+    void isItemRegisteredWhenItemDoesNotExist() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
+        boolean isRegistered = itemService.isItemRegistered(99L);
+        assertEquals(false, isRegistered);
     }
 }

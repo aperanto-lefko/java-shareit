@@ -1,4 +1,4 @@
-package ru.practicum.shareit.MockTests;
+package ru.practicum.shareit.MockTests.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -188,5 +188,33 @@ public class ItemControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(commentDto.getId()), Long.class))
                 .andExpect(jsonPath("$.text", is(commentDto.getText())));
+    }
+
+    @Test
+    void searchItemsEmptyText() throws Exception {
+        mvc.perform(get("/items/search")
+                        .param("text", "")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void addCommentItemNotFound() throws Exception {
+        when(userService.isUserRegistered(anyLong()))
+                .thenReturn(true);
+        when(itemService.isItemRegistered(anyLong()))
+                .thenReturn(false);
+
+        mvc.perform(post("/items/{id}/comment", 999)
+                        .header("X-Sharer-User-Id", "1")
+                        .content(mapper.writeValueAsString(commentDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("В запросе неверно указан itemIdВещь с itemId 999 не найдена в базе")));
     }
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.MockTests;
+package ru.practicum.shareit.MockTests.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;

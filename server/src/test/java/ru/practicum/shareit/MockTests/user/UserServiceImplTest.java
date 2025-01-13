@@ -1,4 +1,4 @@
-package ru.practicum.shareit.MockTests;
+package ru.practicum.shareit.MockTests.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -94,6 +95,7 @@ public class UserServiceImplTest {
         assertThrows(InvalidEmailException.class, () -> userService.updateUser(request));
     }
 
+
     @Test
     void updateUserEmailIsNotRegistered() {
         when(userRepository.findById(user.getId()))
@@ -114,5 +116,33 @@ public class UserServiceImplTest {
         assertThrows(InvalidUserIdException.class, () -> userService.updateUser(request));
         verify(userRepository).findById(user.getId()); //метод был вызван
         verify(userRepository, never()).save(any(User.class)); //метод не был вызван
+    }
+
+    @Test
+    void getUser() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        UserDto actualUserDto = userService.getUser(user.getId());
+        assertEquals(user.getId(), actualUserDto.getId());
+        assertEquals(user.getName(), actualUserDto.getName());
+        assertEquals(user.getEmail(), actualUserDto.getEmail());
+    }
+
+    @Test
+    void getUserWhenUserDoesNotExist() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+        assertThrows(InvalidUserIdException.class, () -> userService.getUser(user.getId()));
+        verify(userRepository).findById(user.getId());
+    }
+
+    @Test
+    void deleteUser() {
+        userService.deleteUser(user.getId());
+        verify(userRepository).deleteById(user.getId());
+    }
+
+    @Test
+    void isUserRegisteredWhenUserExists() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        assertTrue(userService.isUserRegistered(user.getId()));
     }
 }
