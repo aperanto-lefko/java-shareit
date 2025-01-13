@@ -212,4 +212,21 @@ public class BookingServiceImplTest {
         verify(bookingRepository).findByItemIdCurrentBook(eq(item.getId()), any(LocalDateTime.class));
     }
 
+    @Test
+    void createBookingWhenUserNotFound() {
+        when(userService.getUserById(user.getId())).thenThrow(new InvalidParameterForBooking("Пользователь не найден"));
+
+        assertThrows(InvalidParameterForBooking.class, () -> bookingService.createBooking(user.getId(), bookingDto));
+        verify(bookingRepository, never()).save(any(Booking.class));
+    }
+
+    @Test
+    void nextBookingForItemWhenNoNextBooking() {
+        when(bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(anyLong(), any())).thenReturn(Optional.empty());
+
+        Booking nextBooking = bookingService.nextBookingForItem(item.getId());
+
+        assertEquals(null, nextBooking);
+        verify(bookingRepository).findFirstByItemIdAndStartAfterOrderByStartAsc(eq(item.getId()), any(LocalDateTime.class));
+    }
 }

@@ -94,7 +94,6 @@ public class BookingServiceImpl implements BookingService {
                 .orElse(null);
     }
 
-
     private List<BookingDto> toListBookingDto(List<Booking> list) {
         return list.stream()
                 .map(BookingMapper::toBookingDto)

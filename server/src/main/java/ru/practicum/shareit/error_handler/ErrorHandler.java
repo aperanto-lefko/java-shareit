@@ -5,6 +5,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,6 +19,7 @@ import ru.practicum.shareit.exception.InvalidParameterForBooking;
 import ru.practicum.shareit.exception.InvalidRequestIdException;
 import ru.practicum.shareit.exception.InvalidUserIdException;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice("ru.practicum.shareit")
@@ -32,6 +35,15 @@ public class ErrorHandler {
                 .collect(Collectors.joining(","));
         log.error("Пользователь указал некорректные данные. " + response);
         return new ErrorResponse("Указаны некорректные данные. " + response);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleAnnotationsObject(MethodArgumentNotValidException e) { //исключение при срабатывании аннотации на объектах
+        String fieldName = Objects.requireNonNull(e.getBindingResult().getFieldError()).getField(); //получение поля, которое вызвало ошибку
+        String response = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage(); //можно вернуть массивом все ошибки валидации
+        log.error("Пользователь указал некорректные данные." + response);
+        ErrorResponse errorResponse = new ErrorResponse("Указаны некорректные данные. " + response);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); //400
     }
 
     @ExceptionHandler

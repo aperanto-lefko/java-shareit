@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
+
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -149,6 +151,20 @@ public class ItemControllerTest {
     }
 
     @Test
+    void getItemsForUserWithoutXSharer() throws Exception {
+        when(itemService.getItemsForUser(anyLong()))
+                .thenReturn(Arrays.asList(item1Dto, item2Dto));
+        when(userService.isUserRegistered(anyLong()))
+                .thenReturn(true);
+        mvc.perform(get("/items")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(containsString("Не указан заголовок X-Sharer-User-Id. " +
+                        "Required request header 'X-Sharer-User-Id' for method parameter type Long is not present")));
+    }
+
+    @Test
     void updateItem() throws Exception {
         when(itemService.updateItem(any(UpdateItemRequest.class)))
                 .thenReturn(updatedItem);
@@ -217,4 +233,5 @@ public class ItemControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", is("В запросе неверно указан itemIdВещь с itemId 999 не найдена в базе")));
     }
+
 }
