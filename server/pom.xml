@@ -145,6 +145,7 @@
 		<!--добавлено в 15 спринте -->
 	</dependencies>
 
+
 	<build>
 		<resources>
 			<resource>
