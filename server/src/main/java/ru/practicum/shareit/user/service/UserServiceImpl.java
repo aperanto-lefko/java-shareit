@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.InvalidEmailException;
-import ru.practicum.shareit.exception.InvalidUserIdException;
+import ru.practicum.shareit.exception.UserIdNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-               .orElseThrow(() -> new InvalidUserIdException("Пользователь с id " + id + " не найден"));
+               .orElseThrow(() -> new UserIdNotFoundException("Пользователь с id " + id + " не найден"));
     }
 
     @Transactional

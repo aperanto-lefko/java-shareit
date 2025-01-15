@@ -9,8 +9,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.InvalidRequestIdException;
-import ru.practicum.shareit.exception.InvalidUserIdException;
+import ru.practicum.shareit.exception.RequestIdNotFoundException;
+import ru.practicum.shareit.exception.UserIdNotFoundException;
 import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -111,7 +111,7 @@ public class RequestControllerTest {
 
     @Test
     void getRequestByIdNotFound() throws Exception {
-        when(requestService.getRequest(anyLong())).thenThrow(new InvalidRequestIdException("Запрос с id 1 не найден"));
+        when(requestService.getRequest(anyLong())).thenThrow(new RequestIdNotFoundException("Запрос с id 1 не найден"));
 
         mvc.perform(get("/requests/{id}", 1)
                         .header("X-Sharer-User-Id", "1")
@@ -123,7 +123,7 @@ public class RequestControllerTest {
 
     @Test
     void getRequestsInvalidUserId() throws Exception {
-        when(requestService.getRequests(anyLong())).thenThrow(new InvalidUserIdException("Пользователь не найден"));
+        when(requestService.getRequests(anyLong())).thenThrow(new UserIdNotFoundException("Пользователь не найден"));
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", "999"))
                 .andExpect(status().isNotFound())

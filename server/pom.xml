@@ -97,7 +97,6 @@
 			<version>2.2</version> <!-- аннотации зависимости таблиц -->
 		</dependency>
 
-
 		<dependency>
 			<groupId>com.querydsl</groupId> <!-- язык QueryDSL (Query Domain Specific Language) -->
 			<artifactId>querydsl-jpa</artifactId>

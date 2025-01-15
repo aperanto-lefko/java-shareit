@@ -14,8 +14,8 @@ import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.booking.stateStrategy.Status;
 import ru.practicum.shareit.booking.stateStrategy.Strategy;
 import ru.practicum.shareit.booking.stateStrategy.StrategyFactory;
-import ru.practicum.shareit.exception.InvalidBookingIdException;
-import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.BookingIdNotFoundException;
+import ru.practicum.shareit.exception.ItemIdNotFoundException;
 import ru.practicum.shareit.exception.InvalidParameterForBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -103,7 +103,7 @@ public class BookingServiceImplTest {
         when(userService.getUserById(user.getId())).thenReturn(user);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidItemIdException.class, () -> bookingService.createBooking(user.getId(), bookingDto));
+        assertThrows(ItemIdNotFoundException.class, () -> bookingService.createBooking(user.getId(), bookingDto));
         verify(bookingRepository, never()).save(any(Booking.class));
     }
 
@@ -134,7 +134,7 @@ public class BookingServiceImplTest {
     void createApproveWhenBookingNotFound() {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidBookingIdException.class, () -> bookingService.createApprove(user.getId(), 1L, true));
+        assertThrows(BookingIdNotFoundException.class, () -> bookingService.createApprove(user.getId(), 1L, true));
         verify(bookingRepository, never()).save(any(Booking.class));
     }
 
@@ -184,7 +184,7 @@ public class BookingServiceImplTest {
     void searchBookingWhenBookingNotFound() {
         when(bookingRepository.findByIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidBookingIdException.class, () -> bookingService.searchBooking(user.getId(), booking.getId()));
+        assertThrows(BookingIdNotFoundException.class, () -> bookingService.searchBooking(user.getId(), booking.getId()));
     }
 
     @Test

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.exception.InvalidRequestIdException;
+import ru.practicum.shareit.exception.RequestIdNotFoundException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -87,7 +87,7 @@ public class RequestServiceImplTest {
     @Test
     void getRequestByIdWhenRequestDoesNotExist() {
         when(requestRepository.findById(anyLong())).thenReturn(Optional.empty());
-        InvalidRequestIdException exception = assertThrows(InvalidRequestIdException.class, () -> {
+        RequestIdNotFoundException exception = assertThrows(RequestIdNotFoundException.class, () -> {
             requestService.getRequestById(999L);
         });
         assertEquals("Запрос с id 999 не найден", exception.getMessage());

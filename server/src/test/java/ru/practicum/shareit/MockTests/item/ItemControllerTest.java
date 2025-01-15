@@ -8,8 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.InvalidItemIdException;
-import ru.practicum.shareit.exception.InvalidUserIdException;
+import ru.practicum.shareit.exception.ItemIdNotFoundException;
+import ru.practicum.shareit.exception.UserIdNotFoundException;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -225,7 +225,7 @@ public class ItemControllerTest {
         when(userService.isUserRegistered(anyLong()))
                 .thenReturn(true);
         when(itemService.isItemRegistered(anyLong()))
-                .thenThrow(new InvalidItemIdException("Некорректный id вещи"));
+                .thenThrow(new ItemIdNotFoundException("Некорректный id вещи"));
 
         mvc.perform(post("/items/{id}/comment", 999)
                         .header("X-Sharer-User-Id", "1")
@@ -240,7 +240,7 @@ public class ItemControllerTest {
     @Test
     void addCommentUserNotFoundWithThrow() throws Exception {
         when(userService.isUserRegistered(anyLong()))
-                .thenThrow(new InvalidUserIdException("Некорректный id пользователя"));
+                .thenThrow(new UserIdNotFoundException("Некорректный id пользователя"));
         when(itemService.isItemRegistered(anyLong()))
                 .thenReturn(true);
 

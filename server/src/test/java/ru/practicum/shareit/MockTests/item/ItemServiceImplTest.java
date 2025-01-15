@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.ItemIdNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -151,7 +151,7 @@ public class ItemServiceImplTest {
     void updateItemWhenItemNotFound() {
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
-        assertThrows(InvalidItemIdException.class, () -> itemService.updateItem(request));
+        assertThrows(ItemIdNotFoundException.class, () -> itemService.updateItem(request));
         verify(itemRepository).findById(request.getId());
         verify(itemRepository, never()).save(any(Item.class));
     }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.practicum.shareit.user.UserDto.UserDto;
+import ru.practicum.shareit.user.userDto.UserDto;
 
 @Controller
 @RequestMapping("/users")

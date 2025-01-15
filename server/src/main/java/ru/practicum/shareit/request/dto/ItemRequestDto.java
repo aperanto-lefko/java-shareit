@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
 @EqualsAndHashCode
 @ToString
+@Setter
 @Builder
 public class ItemRequestDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

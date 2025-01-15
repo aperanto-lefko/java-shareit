@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.InvalidRequestIdException;
+import ru.practicum.shareit.exception.RequestIdNotFoundException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.RequestMapper;
@@ -33,7 +33,7 @@ public class RequestServiceImpl implements RequestService { //добавить �
 
     public ItemRequest getRequestById(Long id) {
         return requestRepository.findById(id)
-                .orElseThrow(() -> new InvalidRequestIdException("Запрос с id " + id + " не найден"));
+                .orElseThrow(() -> new RequestIdNotFoundException("Запрос с id " + id + " не найден"));
     }
 
     public List<ItemRequestDto> getRequests(Long id) {

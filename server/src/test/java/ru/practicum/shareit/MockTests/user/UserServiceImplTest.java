@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.InvalidEmailException;
-import ru.practicum.shareit.exception.InvalidUserIdException;
+import ru.practicum.shareit.exception.UserIdNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
@@ -113,7 +113,7 @@ public class UserServiceImplTest {
     @Test
     void updateUserWhenUserDoesNotExist() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
-        assertThrows(InvalidUserIdException.class, () -> userService.updateUser(request));
+        assertThrows(UserIdNotFoundException.class, () -> userService.updateUser(request));
         verify(userRepository).findById(user.getId()); //метод был вызван
         verify(userRepository, never()).save(any(User.class)); //метод не был вызван
     }
@@ -130,7 +130,7 @@ public class UserServiceImplTest {
     @Test
     void getUserWhenUserDoesNotExist() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
-        assertThrows(InvalidUserIdException.class, () -> userService.getUser(user.getId()));
+        assertThrows(UserIdNotFoundException.class, () -> userService.getUser(user.getId()));
         verify(userRepository).findById(user.getId());
     }
 

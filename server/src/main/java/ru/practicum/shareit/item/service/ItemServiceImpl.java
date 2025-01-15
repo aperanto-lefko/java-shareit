@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.ItemIdNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -43,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
 
     public Item getItemById(Long id) {
         return itemRepository.findById(id)
-                .orElseThrow(() -> new InvalidItemIdException("Вещь с id " + id + " не найдена"));
+                .orElseThrow(() -> new ItemIdNotFoundException("Вещь с id " + id + " не найдена"));
     }
 
     public List<ItemDto> getItemsForUser(Long userId) {

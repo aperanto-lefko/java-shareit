@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.InvalidBookingIdException;
+import ru.practicum.shareit.exception.BookingIdNotFoundException;
 import ru.practicum.shareit.exception.InvalidEmailException;
-import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.ItemIdNotFoundException;
 import ru.practicum.shareit.exception.InvalidParameterForBooking;
-import ru.practicum.shareit.exception.InvalidRequestIdException;
-import ru.practicum.shareit.exception.InvalidUserIdException;
+import ru.practicum.shareit.exception.RequestIdNotFoundException;
+import ru.practicum.shareit.exception.UserIdNotFoundException;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -68,7 +68,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
-    public ErrorResponse invalidUserId(InvalidUserIdException e) { //исключение для некорректного номер id user
+    public ErrorResponse invalidUserId(UserIdNotFoundException e) { //исключение для некорректного номер id user
         log.error("Неверно указан userId");
         return new ErrorResponse("В запросе неверно указан userId " + e.getMessage());
     }
@@ -82,21 +82,21 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
-    public ErrorResponse invalidItemId(InvalidItemIdException e) { //исключение для некорректного номер id item
+    public ErrorResponse invalidItemId(ItemIdNotFoundException e) { //исключение для некорректного номер id item
         log.error("Неверно указан itemId");
         return new ErrorResponse("В запросе неверно указан itemId" + e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
-    public ErrorResponse invalidBookingId(InvalidBookingIdException e) { //исключение для некорректного номер id booking
+    public ErrorResponse invalidBookingId(BookingIdNotFoundException e) { //исключение для некорректного номер id booking
         log.error("Неверно указан bookingId");
         return new ErrorResponse("В запросе неверно указан bookingId" + e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
-    public ErrorResponse invalidRequestId(InvalidRequestIdException e) { //исключение для некорректного номер id запроса
+    public ErrorResponse invalidRequestId(RequestIdNotFoundException e) { //исключение для некорректного номер id запроса
         log.error("Неверно указан requestId");
         return new ErrorResponse("В запросе неверно указан requestId" + e.getMessage());
     }

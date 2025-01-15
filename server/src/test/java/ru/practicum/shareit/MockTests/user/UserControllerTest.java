@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.InvalidUserIdException;
+import ru.practicum.shareit.exception.UserIdNotFoundException;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UpdateUserRequest;
@@ -118,7 +118,7 @@ public class UserControllerTest {
 
     @Test
     void deleteUserNotFound() throws Exception {
-        doThrow(new InvalidUserIdException("Пользователь не найден")).when(userService).deleteUser(anyLong());
+        doThrow(new UserIdNotFoundException("Пользователь не найден")).when(userService).deleteUser(anyLong());
 
         mvc.perform(delete("/users/{id}", 999)
                         .characterEncoding(StandardCharsets.UTF_8))

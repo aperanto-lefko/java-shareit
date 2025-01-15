@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.InvalidItemIdException;
+import ru.practicum.shareit.exception.ItemIdNotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -100,7 +100,7 @@ public class CommentServiceImplTest {
     void createCommentWhenItemNotFound() {
         when(userService.getUserById(user.getId())).thenReturn(user);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.empty());
-        assertThrows(InvalidItemIdException.class, () -> commentService.createComment(user.getId(), commentDto, item.getId()));
+        assertThrows(ItemIdNotFoundException.class, () -> commentService.createComment(user.getId(), commentDto, item.getId()));
         verify(commentRepository, never()).save(any(Comment.class));
     }
 

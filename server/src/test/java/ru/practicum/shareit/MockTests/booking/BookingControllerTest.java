@@ -15,7 +15,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.stateStrategy.Status;
-import ru.practicum.shareit.exception.InvalidBookingIdException;
+import ru.practicum.shareit.exception.BookingIdNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
@@ -191,7 +191,7 @@ public class BookingControllerTest {
 
     @Test
     void getInvalidBooking() throws Exception {
-        when(bookingRepository.findById(anyLong())).thenThrow(InvalidBookingIdException.class);
+        when(bookingRepository.findById(anyLong())).thenThrow(BookingIdNotFoundException.class);
         mvc.perform(get("/bookings/{bookingId}", bookingDto1.getId())
                         .header("X-Sharer-User-Id", "1")
                         .characterEncoding(StandardCharsets.UTF_8)

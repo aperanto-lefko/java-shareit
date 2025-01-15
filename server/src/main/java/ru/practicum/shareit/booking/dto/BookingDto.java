@@ -3,8 +3,11 @@ package ru.practicum.shareit.booking.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Data;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.booking.stateStrategy.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -14,8 +17,11 @@ import ru.practicum.shareit.validate.ItemIdValid;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 @Builder
+@Setter
 public class BookingDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
